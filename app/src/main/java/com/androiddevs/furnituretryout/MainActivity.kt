@@ -10,7 +10,11 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.ar.core.Anchor
 import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.Node
+import com.google.ar.sceneform.collision.Box
+import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
@@ -21,6 +25,8 @@ import java.util.concurrent.CompletableFuture
 private const val BOTTOM_SHEET_PEEK_HEIGHT = 50f
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var arFragment: ArFragment
 
     private val models = mutableListOf(
         Model(R.drawable.chair, "Chair", R.raw.chair),
@@ -34,8 +40,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        arFragment = fragment as ArFragment
         setupBottomSheet()
         setupRecyclerView()
+        setupDoubleTapArPlaneListener()
+    }
+
+    private fun setupDoubleTapArPlaneListener() {
+        arFragment.setOnTapArPlaneListener { hitResult, _, _ ->
+            loadModel { modelRenderable, viewRenderable ->
+                addNodeToScene(hitResult.createAnchor(), modelRenderable, viewRenderable)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -58,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 resources.displayMetrics
             ).toInt()
         bottomSheetBehavior.addBottomSheetCallback(object :
-        BottomSheetBehavior.BottomSheetCallback() {
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 bottomSheet.bringToFront()
             }
@@ -67,11 +83,45 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun getCurrentScene() = arFragment.arSceneView.scene
+
     private fun createDeleteButton(): Button {
         return Button(this).apply {
             text = "Delete"
             setBackgroundColor(Color.RED)
             setTextColor(Color.WHITE)
+        }
+    }
+
+    private fun addNodeToScene(
+        anchor: Anchor,
+        modelRenderable: ModelRenderable,
+        viewRenderable: ViewRenderable
+    ) {
+        val anchorNode = AnchorNode(anchor)
+        val modelNode = TransformableNode(arFragment.transformationSystem).apply {
+            renderable = modelRenderable
+            setParent(anchorNode)
+            getCurrentScene().addChild(anchorNode)
+            select()
+        }
+        val viewNode = Node().apply {
+            renderable = null
+            setParent(modelNode)
+            val box = modelNode.renderable?.collisionShape as Box
+            localPosition = Vector3(0f, box.size.y, 0f)
+            (viewRenderable.view as Button).setOnClickListener {
+                getCurrentScene().removeChild(anchorNode)
+            }
+        }
+        modelNode.setOnTapListener { _, _ ->
+            if(!modelNode.isTransforming) {
+                if(viewNode.renderable == null) {
+                    viewNode.renderable = viewRenderable
+                } else {
+                    viewNode.renderable = null
+                }
+            }
         }
     }
 
@@ -91,9 +141,6 @@ class MainActivity : AppCompatActivity() {
                 null
             }
     }
-
-
-
 
 
 }
