@@ -3,6 +3,34 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.ar.sceneform.plugin'
 
+sceneform.asset(
+        'sampledata/models/Chair.obj',
+        'default',
+        'sampledata/models/Chair.sfa',
+        'src/main/res/raw/chair'
+)
+
+sceneform.asset(
+        'sampledata/models/Oven_01.obj',
+        'default',
+        'sampledata/models/Oven_01.sfa',
+        'src/main/res/raw/oven'
+)
+
+sceneform.asset(
+        'sampledata/models/Piano_01.obj',
+        'default',
+        'sampledata/models/Piano_01.sfa',
+        'src/main/res/raw/piano'
+)
+
+sceneform.asset(
+        'sampledata/models/Table_Large_Rectangular_01.obj',
+        'default',
+        'sampledata/models/Table_Large_Rectangular_01.sfa',
+        'src/main/res/raw/table'
+)
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
