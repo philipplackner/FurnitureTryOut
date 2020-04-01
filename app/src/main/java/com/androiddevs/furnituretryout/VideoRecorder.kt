@@ -1,6 +1,7 @@
 package com.androiddevs.furnituretryout
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.util.Size
@@ -44,6 +45,56 @@ class VideoRecorder(
             setVideoEncoder(videoEncoder)
             prepare()
             start()
+        }
+    }
+
+    fun toggleRecordingState(): Boolean {
+        if(isRecording) {
+            stopRecording()
+        } else {
+            startRecording()
+        }
+        return isRecording
+    }
+
+    private fun startRecording() {
+        setupMediaRecorder()
+        encoderSurface = mediaRecorder?.surface
+        sceneView.startMirroringToSurface(encoderSurface, 0, 0, videoSize.width, videoSize.height)
+        isRecording = true
+    }
+
+    private fun stopRecording() {
+        encoderSurface?.let {
+            sceneView.stopMirroringToSurface(encoderSurface)
+            encoderSurface = null
+        }
+        mediaRecorder?.stop()
+        mediaRecorder?.reset()
+        isRecording = false
+    }
+
+    fun setVideoQuality(quality: Int, orientation: Int) {
+        var profile: CamcorderProfile? = null
+        if(CamcorderProfile.hasProfile(quality)) {
+            profile = CamcorderProfile.get(quality)
+        } else {
+            for(level in qualityLevels) {
+                if(CamcorderProfile.hasProfile(level)) {
+                    profile = CamcorderProfile.get(level)
+                    break
+                }
+            }
+        }
+        profile?.let {
+            if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                videoSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+            } else {
+                videoSize = Size(profile.videoFrameHeight, profile.videoFrameWidth)
+            }
+            videoEncoder = profile.videoCodec
+            bitRate = profile.videoBitRate
+            frameRate = profile.videoFrameRate
         }
     }
 }
