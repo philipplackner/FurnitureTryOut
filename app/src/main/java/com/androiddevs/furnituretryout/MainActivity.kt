@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.CompletableFuture
 
 private const val BOTTOM_SHEET_PEEK_HEIGHT = 50f
+private const val DOUBLE_TAP_TOLERANCE_MS = 1000L
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,10 +48,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDoubleTapArPlaneListener() {
+        var firstTapTime = 0L
         arFragment.setOnTapArPlaneListener { hitResult, _, _ ->
-            loadModel { modelRenderable, viewRenderable ->
-                addNodeToScene(hitResult.createAnchor(), modelRenderable, viewRenderable)
+            if(firstTapTime == 0L) {
+                firstTapTime = System.currentTimeMillis()
+            } else if(System.currentTimeMillis() - firstTapTime < DOUBLE_TAP_TOLERANCE_MS) {
+                firstTapTime = 0L
+                loadModel { modelRenderable, viewRenderable ->
+                    addNodeToScene(hitResult.createAnchor(), modelRenderable, viewRenderable)
+                }
+            } else {
+                firstTapTime = System.currentTimeMillis()
             }
+
         }
     }
 
