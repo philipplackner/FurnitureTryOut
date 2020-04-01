@@ -36,7 +36,7 @@
     file: 'sampledata/models/Table_Large_Rectangular_01.obj',
     name: 'Table_Large_Rectangular_01',
     recenter: 'root',
-    scale: 0.13256599999999999,
+    scale: 0.09,
   },
   version: '0.54:2',
 }

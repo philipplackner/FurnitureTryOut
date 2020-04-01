@@ -37,7 +37,7 @@
     file: 'sampledata/models/Chair.obj',
     name: 'Chair',
     recenter: 'root',
-    scale: 0.19659799999999999,
+    scale: 0.1,
   },
   samplers: [
     {
