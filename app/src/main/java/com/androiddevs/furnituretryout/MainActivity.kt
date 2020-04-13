@@ -166,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             getCurrentScene().addChild(anchorNode)
             select()
         }
+
         val viewNode = Node().apply {
             renderable = null
             setParent(modelNode)

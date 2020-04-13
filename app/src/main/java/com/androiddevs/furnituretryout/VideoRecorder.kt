@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.res.Configuration
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -43,6 +44,8 @@ class VideoRecorder(
 
     private var isRecording = false
 
+    private var curPath: String? = null
+
     private fun setupMediaRecorder() {
         if(mediaRecorder == null) {
             mediaRecorder = MediaRecorder()
@@ -69,6 +72,7 @@ class VideoRecorder(
         val path =  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)?.absolutePath +
                 "/TryOutFurniture/${date}_video.mp4"
         val file = File(path)
+        curPath = path
         val dir = file.parentFile
         if(!dir.exists()) {
             dir.mkdirs()
@@ -116,6 +120,9 @@ class VideoRecorder(
         }
         mediaRecorder?.stop()
         mediaRecorder?.reset()
+        curPath?.let {
+            MediaScannerConnection.scanFile(activity, arrayOf(it), null, null)
+        }
         isRecording = false
     }
 
