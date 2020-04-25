@@ -36,10 +36,15 @@ class MainActivity : AppCompatActivity() {
         Model(R.drawable.chair, "Chair", R.raw.chair),
         Model(R.drawable.oven, "Oven", R.raw.oven),
         Model(R.drawable.piano, "Piano", R.raw.piano),
+        Model(R.drawable.table, "Table", R.raw.table),
+        Model(R.drawable.table, "Table", R.raw.table),
+        Model(R.drawable.table, "Table", R.raw.table),
+        Model(R.drawable.table, "Table", R.raw.table),
+        Model(R.drawable.table, "Table", R.raw.table),
         Model(R.drawable.table, "Table", R.raw.table)
     )
 
-    lateinit var selectedModel: Model
+    private lateinit var selectedModel: Model
 
     val viewNodes = mutableListOf<Node>()
 
