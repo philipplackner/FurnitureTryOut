@@ -17,7 +17,6 @@ class ModelAdapter(
 
     var selectedModel = MutableLiveData<Model>()
     private var selectedModelIndex = 0
-    private var modelViewHolders = mutableListOf<ModelViewHolder>()
 
     inner class ModelViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -29,26 +28,28 @@ class ModelAdapter(
     override fun getItemCount() = models.size
 
     override fun onBindViewHolder(holder: ModelViewHolder, position: Int) {
-        if(!modelViewHolders.contains(holder)) {
-            modelViewHolders.add(holder)
+        if(selectedModelIndex == holder.layoutPosition) {
+            holder.itemView.setBackgroundColor(SELECTED_MODEL_COLOR)
+            selectedModel.value = models[holder.layoutPosition]
+        } else {
+            holder.itemView.setBackgroundColor(UNSELECTED_MODEL_COLOR)
         }
         holder.itemView.apply {
             ivThumbnail.setImageResource(models[position].imageResourceId)
             tvTitle.text = models[position].title
-            if(selectedModelIndex == position) {
-                setBackgroundColor(SELECTED_MODEL_COLOR)
-                selectedModel.value = models[position]
-            }
+
             setOnClickListener {
-                selectModel(position)
+                selectModel(holder)
             }
         }
     }
 
-    private fun selectModel(position: Int) {
-        modelViewHolders[selectedModelIndex].itemView.setBackgroundColor(UNSELECTED_MODEL_COLOR)
-        selectedModelIndex = position
-        modelViewHolders[selectedModelIndex].itemView.setBackgroundColor(SELECTED_MODEL_COLOR)
-        selectedModel.value = models[position]
+    private fun selectModel(holder: ModelViewHolder) {
+        if(selectedModelIndex != holder.layoutPosition) {
+            holder.itemView.setBackgroundColor(SELECTED_MODEL_COLOR)
+            notifyItemChanged(selectedModelIndex)
+            selectedModelIndex = holder.adapterPosition
+            selectedModel.value = models[holder.layoutPosition]
+        }
     }
 }
